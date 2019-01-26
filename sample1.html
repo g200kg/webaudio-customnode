@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<body>
+<script>
+
+// Custom class definition
+class MyDelayNode extends GainNode {
+  constructor(actx,opt){
+    super(actx);
+    // Internal Nodes
+    this._delayNode = new DelayNode(actx, {delayTime:0.5});
+    this._mixNode = new GainNode(actx, {gain:0.5});
+    this._feedbackNode = new GainNode(actx, {gain:0.8});
+    this._outputNode = new GainNode(actx, {gain:1.0});
+
+    // Export parameters
+    this.delayTime = this._delayNode.delayTime;
+    this.feedback = this._feedbackNode.gain;
+    this.mix = this._mixNode.gain;
+
+    // Options setup
+    for(let k in opt){
+      switch(k){
+      case 'delayTime': this.delayTime.value = opt[k];
+        break;
+      case 'feedback': this.feedback.value = opt[k];
+        break;
+      case 'mix': this.mix.value = opt[k];
+        break;
+      }
+    }
+
+    this._inputConnect=this.connect;   // input side, connect of super class
+    this.connect=this._outputConnect;  // connect() method of output
+
+    this._inputConnect(this._delayNode).connect(this._mixNode).connect(this._outputNode);
+    this._inputConnect(this._outputNode);
+    this._delayNode.connect(this._feedbackNode).connect(this._delayNode);
+  }
+  _outputConnect(to){
+    return this._outputNode.connect(to);
+  }
+}
+
+
+// Sample App
+window.onload=function(){
+  actx=new AudioContext();
+  let isplaying=false;
+
+  src = new MediaElementAudioSourceNode(actx, {mediaElement:document.getElementById("audio")});
+  vol = new GainNode(actx, {gain:0.1});
+  myDelay = new MyDelayNode(actx, {delayTime:0.5});
+
+  src.connect(myDelay).connect(vol).connect(actx.destination);
+
+  document.getElementById("play").addEventListener("click", ()=>{
+    actx.resume();
+    isplaying=!isplaying;
+    if(isplaying)
+      document.getElementById("audio").play();
+    else
+      document.getElementById("audio").pause();
+  });
+  document.getElementById("delaytime").addEventListener("input",(ev)=>{
+    myDelay.delayTime.value = ev.target.value;
+  });
+  document.getElementById("feedback").addEventListener("input",(ev)=>{
+    myDelay.feedback.value = ev.target.value;
+  });
+  document.getElementById("mix").addEventListener("input",(ev)=>{
+    myDelay.mix.value = ev.target.value;
+  });
+
+};
+
+</script>
+<h1>[Web Audio API] CustomNode sample</h1>
+<img src="./mydelaynode.png" width="600"/><br/>
+<audio id="audio" src="./loop.wav"></audio>
+<button id="play">PLAY/PAUSE</button><br/><br/>
+
+<table>
+<tr><th>DelayTime</th><td><input id="delaytime" type="range" min="0" max="1" step="0.01"/></td></tr>
+<tr><th>Feedback</th><td><input id="feedback" type="range" min="0" max="1" step="0.01"/></td></tr>
+<tr><th>Mix</th><td><input id="mix" type="range" min="0" max="1" step="0.01"/></td></tr>
+</table>
+</body>
+</html>
