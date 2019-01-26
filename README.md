@@ -26,7 +26,7 @@ If you create a custom node as a class unrelated to the Web Audio API, it can no
 
 To avoid this, there is a way to create a custom node as a subclass of the input node (in most cases GainNode).
 
-```
+```js
 class MyDelayNode extends GainNode {
   ...
 }
@@ -36,7 +36,7 @@ The parent of the custom node will be the `GainNode` for input terminal. And in 
 
 The confusing thing is a handling `connect()` method of input/output. Check the handling of `_inputConnect` and `_outputConnect` with the following code. Like this, setting `connect()` of the output terminal after holding `connect()` from the input terminal will operate as expected.
 
-```
+```js
 // Custom class definition
 class MyDelayNode extends GainNode {
   constructor(actx,opt){
@@ -81,4 +81,4 @@ Now, you can freely combine nodes and execute DSP between input and output GainN
 
 Then, only the necessary parameters are exposed as properties of this node, and process the initial values of option, it becomes a custom node which behaves like the standard node.
 
-### [MyDelayNode Working Sample](./sample1.html)
+### [MyDelayNode Working Sample](https://g200kg.github.io/webaudio-customnode/sample1.html)
