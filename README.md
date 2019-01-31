@@ -1,6 +1,8 @@
-# webaudio-customnode
+# webaudio-customnode  
 
-Repository : [https://github.com/g200kg/webaudio-customnode](https://github.com/g200kg/webaudio-customnode)
+Repository : [https://github.com/g200kg/webaudio-customnode](https://github.com/g200kg/webaudio-customnode)  
+
+
 
 ## [Web Audio API] How to create custom AudioNode
 
@@ -83,4 +85,6 @@ Now, you can freely combine nodes and execute DSP between input and output GainN
 
 Then, only the necessary parameters are exposed as properties of this node, and process the initial values of option, it becomes a custom node which behaves like the standard node.
 
-### [MyDelayNode Working Sample](https://g200kg.github.io/webaudio-customnode/sample1.html)
+### [Sample 1 : MyDelayNode Working sample](https://g200kg.github.io/webaudio-customnode/sample1.html)
+
+### [Sample 2 : MyPingPongDelayNode working sample](https://g200kg.github.io/webaudio-customnode/sample2.html)

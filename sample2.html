@@ -4,17 +4,20 @@
 <script>
 
 // Custom class definition
-class MyDelayNode extends GainNode {
+class MyPingPongDelayNode extends GainNode {
   constructor(actx,opt){
     super(actx);
     // Internal Nodes
-    this._delay = new DelayNode(actx, {delayTime:0.5});
+    this._delay1 = new DelayNode(actx, {delayTime:0.5});
+    this._delay2 = new DelayNode(actx, {delayTime:0.5});
+    this._merger = new ChannelMergerNode(actx);
+    this._constant = new ConstantSourceNode(actx, {offset:0.5});
     this._mix = new GainNode(actx, {gain:0.5});
     this._feedback = new GainNode(actx, {gain:0.5});
     this._output = new GainNode(actx, {gain:1.0});
 
     // Export parameters
-    this.delayTime = this._delay.delayTime;
+    this.delayTime = this._constant.offset;
     this.feedback = this._feedback.gain;
     this.mix = this._mix.gain;
 
@@ -33,12 +36,16 @@ class MyDelayNode extends GainNode {
     this._inputConnect=this.connect;   // input side, connect of super class
     this.connect=this._outputConnect;  // connect() method of output
 
-    this._inputConnect(this._delay).connect(this._mix).connect(this._output);
+    this._inputConnect(this._delay1).connect(this._delay2).connect(this._merger,0,0).connect(this._mix).connect(this._output);
+    this._delay1.connect(this._merger,0,1);
     this._inputConnect(this._output);
-    this._delay.connect(this._feedback).connect(this._delay);
+    this._delay2.connect(this._feedback).connect(this._delay1);
+    this._constant.connect(this._delay1.delayTime);
+    this._constant.connect(this._delay2.delayTime);
+    this._constant.start();
   }
-  _outputConnect(to,output,input){
-    return this._output.connect(to,output,input);
+  _outputConnect(to, output, input){
+    return this._output.connect(to, output, input);
   }
 }
 
@@ -50,7 +57,7 @@ window.onload=function(){
 
   src = new MediaElementAudioSourceNode(actx, {mediaElement:document.getElementById("audio")});
   vol = new GainNode(actx, {gain:0.1});
-  myDelay = new MyDelayNode(actx, {delayTime:0.5});
+  myDelay = new MyPingPongDelayNode(actx, {delayTime:0.5});
 
   src.connect(myDelay).connect(vol).connect(actx.destination);
 
@@ -76,8 +83,8 @@ window.onload=function(){
 
 </script>
 <h1>[Web Audio API] CustomNode sample</h1>
-<h2>MyDelayNode</h2>
-<img src="./mydelaynode.png" width="800"/><br/>
+<h2>MyPingPongDelayNode</h2>
+<img src="./mypingpongdelaynode.png" width="800"/><br/>
 <audio id="audio" src="./loop.wav"></audio>
 <button id="play">PLAY/PAUSE</button><br/><br/>
 
